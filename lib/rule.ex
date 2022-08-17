@@ -136,6 +136,20 @@ defmodule PlugAttack.Rule do
     end
   end
 
+  def fail2banned?(key, opts) do
+    storage = Keyword.fetch!(opts, :storage)
+    limit = Keyword.fetch!(opts, :limit)
+    period = Keyword.fetch!(opts, :period)
+    ban_for = Keyword.fetch!(opts, :ban_for)
+    now = System.system_time(:millisecond)
+
+    if banned?(key, storage, now) do
+      {:block, {:fail2ban, :banned, key}}
+    else
+      {:allow, {:fail2ban, :counting, key}}
+    end
+  end
+
   defp banned?(key, {mod, opts}, now) do
     mod.read(opts, {:fail2ban_banned, key}, now) == {:ok, true}
   end
